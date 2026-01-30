@@ -1,0 +1,18 @@
+# User Configuration (keep music_suite.conf.example)
+music_suite.conf
+
+# Logs and State
+*.log
+*.lock
+
+# Temporary and Backup files
+*.bak
+*.swp
+*~
+.DS_Store
+backup/
+backup_md5/
+tmp_*
+
+# Generated documentation
+music-suite.1.gz

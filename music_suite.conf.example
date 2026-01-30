@@ -1,0 +1,164 @@
+# Music Suite Configuration File
+# Copy this file to ~/.music_suite.conf or ./music_suite.conf to customize settings
+#
+# Configuration files are loaded in this order (later files override earlier):
+#   1. /etc/music_suite/config
+#   2. ~/.config/music_suite/config
+#   3. ./music_suite.conf
+#
+# All settings are optional - the suite will use sensible defaults if not specified.
+
+# ==============================================================================
+# PARALLEL PROCESSING
+# ==============================================================================
+
+# Number of parallel jobs for all operations
+# Default: Output of 'nproc' (number of CPU cores)
+# 
+# Recommendations:
+#   - CPU-bound tasks (FFmpeg, re-encoding): Use nproc or nproc-1
+#   - I/O-bound tasks (verification): Use nproc or higher
+#   - Network drives: Use 2-4 to avoid overwhelming the connection
+#   - Low-power systems: Use 2-4 to keep system responsive
+#
+DEFAULT_JOBS=8
+
+# ==============================================================================
+# FLAC SETTINGS
+# ==============================================================================
+
+# FLAC compression level when re-encoding
+# Range: 0-8 (0 = fastest, 8 = best compression)
+# Default: 8
+#
+# Level 8 provides the best compression with minimal speed difference.
+# Only use lower levels if encoding speed is critical.
+#
+FLAC_COMPRESSION_LEVEL=8
+
+# ==============================================================================
+# REPLAYGAIN SETTINGS
+# ==============================================================================
+
+# Target loudness level for ReplayGain in LUFS (Loudness Units relative to Full Scale)
+# Default: -18
+#
+# Common values:
+#   -18 LUFS: Standard for music (R128, Spotify, YouTube)
+#   -16 LUFS: Slightly louder, used by some services
+#   -23 LUFS: EBU R128 broadcast standard
+#
+# Negative values mean quieter than full scale.
+# More negative = quieter playback at 100% volume.
+#
+REPLAYGAIN_TARGET=-18
+
+# ==============================================================================
+# LOGGING & OUTPUT
+# ==============================================================================
+
+# Directory where log files will be saved
+# Default: $XDG_DATA_HOME/music_suite/logs (usually ~/.local/share/music_suite/logs)
+#
+# All tools create timestamped log files (e.g., flac_failures_20241222_143022.log)
+# Setting this to a dedicated directory keeps your music folders clean.
+#
+# Examples:
+#   LOG_DIRECTORY=~/music_logs
+#   LOG_DIRECTORY=/var/log/music-suite
+#   LOG_DIRECTORY=.                    # Current directory
+#
+# LOG_DIRECTORY=~/music_logs
+
+# ==============================================================================
+# TAG AUDIT SETTINGS
+# ==============================================================================
+
+# Minimum acceptable cover art resolution (pixels)
+# Default: 500
+#
+# Cover art below this resolution will be flagged as WARNING.
+# Common values:
+#   300  - Minimum acceptable quality
+#   500  - Good quality (recommended)
+#   1000 - High quality
+#   1400 - Very high quality (overkill for most uses)
+#
+MIN_COVER_SIZE=500
+
+# ==============================================================================
+# ADVANCED SETTINGS
+# ==============================================================================
+
+# Enable verbose output for debugging
+# Default: 0 (disabled)
+# Set to 1 to enable detailed debug output
+#
+# VERBOSE=0
+
+# Temporary file directory
+# Default: /tmp
+# Only change if you need temp files on a specific filesystem
+#
+# TEMP_DIR=/tmp
+
+# Color output
+# Default: auto (enabled if terminal supports color)
+# Set to 0 to disable colored output (useful for log files)
+#
+# NO_COLOR=0
+
+# ==============================================================================
+# EXAMPLES OF SPECIALIZED CONFIGURATIONS
+# ==============================================================================
+
+# --- For Archival/Backup Workflows ---
+# Focus on thoroughness over speed
+#
+# DEFAULT_JOBS=4                     # Conservative parallel jobs
+# FLAC_COMPRESSION_LEVEL=8           # Best compression
+# REPLAYGAIN_TARGET=-18              # Standard loudness
+# LOG_DIRECTORY=~/archive_logs       # Dedicated log location
+# MIN_COVER_SIZE=1000                # High quality cover art
+
+# --- For Quick Maintenance ---
+# Balance speed and thoroughness
+#
+# DEFAULT_JOBS=16                    # Maximum parallelism
+# FLAC_COMPRESSION_LEVEL=5           # Faster encoding
+# LOG_DIRECTORY=.                    # Current directory
+# MIN_COVER_SIZE=300                 # Accept lower quality
+
+# --- For Network/NAS Libraries ---
+# Reduce I/O pressure
+#
+# DEFAULT_JOBS=4                     # Avoid overwhelming network
+# LOG_DIRECTORY=/local/logs          # Store logs locally, not on NAS
+# TEMP_DIR=/local/tmp                # Use local disk for temp files
+
+# --- For Low-Power Systems (Raspberry Pi, etc.) ---
+# Keep system responsive
+#
+# DEFAULT_JOBS=2                     # Light CPU usage
+# FLAC_COMPRESSION_LEVEL=5           # Faster encoding
+# REPLAYGAIN_TARGET=-18              # Standard
+# LOG_DIRECTORY=/var/log/music       # System log directory
+
+# ==============================================================================
+# NOTES
+# ==============================================================================
+
+# All settings can also be overridden via environment variables:
+#   export DEFAULT_JOBS=16
+#   ./music_suite.sh verify /music
+#
+# Command-line options always take precedence over config file settings:
+#   ./music_suite.sh verify -j 4 /music    # Uses 4 jobs regardless of config
+#
+# To check which config file is being loaded:
+#   ./music_suite.sh check-deps
+#   # Will show if config is loaded from ~/.music_suite.conf or ./music_suite.conf
+#
+# To verify your settings:
+#   grep -v '^#' ~/.music_suite.conf | grep -v '^$'
+#   # Shows only active (non-comment, non-blank) settings
