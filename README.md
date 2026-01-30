@@ -1,6 +1,6 @@
 # Music Library Management Suite
 
-A professional-grade toolkit for verifying, repairing, and managing digital music libraries. Built for audiophiles and archivists handling large collections (1M+ files).
+A Bash toolkit for verifying, repairing, and managing digital music libraries. Built for audiophiles and archivists handling very large collections. Made with Claude and Gemini.
 
 ## Features
 
@@ -593,8 +593,8 @@ For issues or questions:
 - ReplayGain tagging
 - Tag quality auditing
 - Batch workflow orchestration
-- Optimized for massive libraries (1M+ files)
+- Optimized for massive libraries
 
 ---
 
-**Made with ♪ for music lovers and archivists**
+**Made for music lovers and archivists**
