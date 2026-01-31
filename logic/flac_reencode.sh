@@ -16,7 +16,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -h|--help)
-            log_usage "Usage: $(basename "$0") [-j jobs]" "Scans and optionally re-encodes FLAC files in the current directory."
+            log_usage "Usage: auditas reencode [-j jobs]" "Scans and optionally re-encodes FLAC files in the current directory."
             exit 0
             ;;
         *)

@@ -2,6 +2,9 @@
 # MP3 integrity checker and repair tool.
 # Combines functionality of mp3val (general) and vbrfixc (VBR headers).
 
+# Copyright (C) 2026 Cabe Anderson
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 set -e
 set -o pipefail
 
@@ -10,7 +13,7 @@ DIR="."
 JOBS="${DEFAULT_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
 usage() {
-    log_usage "Usage: $(basename "$0") [--fix] [directory]" "
+    log_usage "Usage: auditas mp3 [--fix] [directory]" "
 
 Scans MP3 files for integrity issues and missing VBR headers.
 

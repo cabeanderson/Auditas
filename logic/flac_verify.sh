@@ -30,7 +30,7 @@ MD5_LOCK="/tmp/flac_md5_$$.lock"
 
 # ---------------- Usage ----------------
 usage() {
-    log_usage "Usage: $(basename "$0") [OPTIONS] [path]" "
+    log_usage "Usage: auditas verify [OPTIONS] [path]" "
 
 FLAC file verification tool with parallel processing and resume capability.
 

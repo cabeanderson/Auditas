@@ -214,7 +214,7 @@ execute_step() {
     local cmd_exit=0
     case "$step" in
         verify)
-            if ! "$SCRIPT_DIR/../music_suite.sh" verify "$dir" >> "$BATCH_LOG" 2>&1; then
+            if ! "$SCRIPT_DIR/../auditas.sh" verify "$dir" >> "$BATCH_LOG" 2>&1; then
                 cmd_exit=$?
                 log_error "Verification failed with exit code $cmd_exit"
                 echo "[$step] FAILED in $dir - see $BATCH_LOG" >> "$ERRORS_SUMMARY"
@@ -240,32 +240,32 @@ execute_step() {
             if [[ -n "$needs_md5" ]]; then
                 # Run in scan mode first to see what needs fixing
                 log_info "Scanning for missing MD5 checksums..."
-                "$SCRIPT_DIR/../music_suite.sh" md5 "$dir" >> "$BATCH_LOG" 2>&1
+                "$SCRIPT_DIR/../auditas.sh" md5 "$dir" >> "$BATCH_LOG" 2>&1
                 
                 # In batch mode, we auto-fix without prompting if --force is set
                 if [[ $FORCE -eq 1 ]]; then
                     log_info "Auto-fixing MD5 checksums (--force mode)..."
-                    if ! "$SCRIPT_DIR/../music_suite.sh" md5 --fix "$dir" >> "$BATCH_LOG" 2>&1; then
+                    if ! "$SCRIPT_DIR/../auditas.sh" md5 --fix "$dir" >> "$BATCH_LOG" 2>&1; then
                         cmd_exit=$?
                         log_error "MD5 fix failed with exit code $cmd_exit"
                         echo "[$step] FAILED in $dir - see $BATCH_LOG" >> "$ERRORS_SUMMARY"
                     fi
                 else
-                    log_info "Missing MD5 checksums detected. Run 'music_suite.sh md5 --fix $dir' to repair."
+                    log_info "Missing MD5 checksums detected. Run 'auditas.sh md5 --fix $dir' to repair."
                 fi
             else
                 log_success "No MD5 issues found"
             fi
             ;;
         replaygain)
-            if ! "$SCRIPT_DIR/../music_suite.sh" replaygain "$dir" >> "$BATCH_LOG" 2>&1; then
+            if ! "$SCRIPT_DIR/../auditas.sh" replaygain "$dir" >> "$BATCH_LOG" 2>&1; then
                 cmd_exit=$?
                 log_error "ReplayGain failed with exit code $cmd_exit"
                 echo "[$step] FAILED in $dir - see $BATCH_LOG" >> "$ERRORS_SUMMARY"
             fi
             ;;
         audit)
-            if ! "$SCRIPT_DIR/../music_suite.sh" audit "$dir" >> "$BATCH_LOG" 2>&1; then
+            if ! "$SCRIPT_DIR/../auditas.sh" audit "$dir" >> "$BATCH_LOG" 2>&1; then
                 cmd_exit=$?
                 log_error "Audit failed with exit code $cmd_exit"
                 echo "[$step] FAILED in $dir - see $BATCH_LOG" >> "$ERRORS_SUMMARY"

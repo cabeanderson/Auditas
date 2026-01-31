@@ -1,4 +1,4 @@
-# Contributing to Music Suite
+# Contributing to Auditas
 
 Thank you for your interest in contributing! We welcome bug reports, feature requests, and code contributions.
 
@@ -13,7 +13,7 @@ Thank you for your interest in contributing! We welcome bug reports, feature req
 4.  **Make your changes**.
 5.  **Test your changes**:
     -   Run `make check` to verify dependencies.
-    -   Run `music-suite check-deps`.
+    -   Run `auditas check-deps`.
     -   Test the specific tool you modified.
 6.  **Commit your changes** with a clear message.
 7.  **Push to your branch**:

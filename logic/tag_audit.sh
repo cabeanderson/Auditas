@@ -2,6 +2,9 @@
 # Audits music library for tag quality, missing metadata, and cover art issues.
 # Reports only - does not modify files.
 
+# Copyright (C) 2026 Cabe Anderson
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 set -e
 set -o pipefail
 
@@ -104,14 +107,21 @@ audit_file_worker() {
     # Only process FLAC files for now
     [[ "$f" != *.flac ]] && return 0
     
-    # Extract tags
-    local artist=$(metaflac --show-tag=ARTIST "$f" 2>/dev/null | cut -d= -f2-)
-    local album=$(metaflac --show-tag=ALBUM "$f" 2>/dev/null | cut -d= -f2-)
-    local title=$(metaflac --show-tag=TITLE "$f" 2>/dev/null | cut -d= -f2-)
-    local date=$(metaflac --show-tag=DATE "$f" 2>/dev/null | cut -d= -f2-)
-    local tracknumber=$(metaflac --show-tag=TRACKNUMBER "$f" 2>/dev/null | cut -d= -f2-)
-    local albumartist=$(metaflac --show-tag=ALBUMARTIST "$f" 2>/dev/null | cut -d= -f2-)
-    local genre=$(metaflac --show-tag=GENRE "$f" 2>/dev/null | cut -d= -f2-)
+    # Extract all tags in one go for efficiency
+    declare -A tags
+    while IFS='=' read -r key value; do
+        # Convert key to uppercase for consistent access
+        tags[${key^^}]="$value"
+    done < <(metaflac --export-tags-to=- "$f" 2>/dev/null)
+
+    # Use the associative array for checks
+    local artist="${tags[ARTIST]}"
+    local album="${tags[ALBUM]}"
+    local title="${tags[TITLE]}"
+    local date="${tags[DATE]}"
+    local tracknumber="${tags[TRACKNUMBER]}"
+    local albumartist="${tags[ALBUMARTIST]}"
+    local genre="${tags[GENRE]}"
     
     # Critical checks
     [[ -z "$artist" ]] && issues+=("CRITICAL:MISSING_ARTIST")
@@ -190,13 +200,15 @@ check_album_issues() {
     local dates=()
     
     while IFS= read -r -d '' flac; do
-        local album=$(metaflac --show-tag=ALBUM "$flac" 2>/dev/null | cut -d= -f2-)
-        local albumartist=$(metaflac --show-tag=ALBUMARTIST "$flac" 2>/dev/null | cut -d= -f2-)
-        local date=$(metaflac --show-tag=DATE "$flac" 2>/dev/null | cut -d= -f2-)
-        
-        [[ -n "$album" ]] && albums+=("$album")
-        [[ -n "$albumartist" ]] && albumartists+=("$albumartist")
-        [[ -n "$date" ]] && dates+=("$date")
+        # Read all tags at once to minimize I/O
+        while IFS='=' read -r key value; do
+            case "${key^^}" in
+                ALBUM) [[ -n "$value" ]] && albums+=("$value") ;;
+                ALBUMARTIST) [[ -n "$value" ]] && albumartists+=("$value") ;;
+                DATE) [[ -n "$value" ]] && dates+=("$value") ;;
+            esac
+        done < <(metaflac --export-tags-to=- "$flac" 2>/dev/null)
+
     done < <(find "$album_dir" -maxdepth 1 -type f -name "*.flac" -print0)
     
     # Check for inconsistencies
@@ -223,7 +235,7 @@ check_album_issues() {
 }
 
 # --- Main Logic ---
-log_header "Music Library Tag Auditor"
+log_header "Auditas Tag Auditor"
 log_info "Scanning: $ROOT"
 [[ $CHECK_EMBEDDED_ART -eq 0 ]] && log_info "Embedded cover art check: disabled (faster)"
 

@@ -1,10 +1,10 @@
-# Music Suite Configuration File
-# Copy this file to ~/.music_suite.conf or ./music_suite.conf to customize settings
+# Auditas Configuration File
+# Copy this file to ~/.auditas.conf or ./auditas.conf to customize settings
 #
 # Configuration files are loaded in this order (later files override earlier):
-#   1. /etc/music_suite/config
-#   2. ~/.config/music_suite/config
-#   3. ./music_suite.conf
+#   1. /etc/auditas/config
+#   2. ~/.config/auditas/config
+#   3. ./auditas.conf
 #
 # All settings are optional - the suite will use sensible defaults if not specified.
 
@@ -58,14 +58,14 @@ REPLAYGAIN_TARGET=-18
 # ==============================================================================
 
 # Directory where log files will be saved
-# Default: $XDG_DATA_HOME/music_suite/logs (usually ~/.local/share/music_suite/logs)
+# Default: $XDG_DATA_HOME/auditas/logs (usually ~/.local/share/auditas/logs)
 #
 # All tools create timestamped log files (e.g., flac_failures_20241222_143022.log)
 # Setting this to a dedicated directory keeps your music folders clean.
 #
 # Examples:
 #   LOG_DIRECTORY=~/music_logs
-#   LOG_DIRECTORY=/var/log/music-suite
+#   LOG_DIRECTORY=/var/log/auditas
 #   LOG_DIRECTORY=.                    # Current directory
 #
 # LOG_DIRECTORY=~/music_logs
@@ -150,15 +150,15 @@ MIN_COVER_SIZE=500
 
 # All settings can also be overridden via environment variables:
 #   export DEFAULT_JOBS=16
-#   ./music_suite.sh verify /music
+#   ./auditas.sh verify /music
 #
 # Command-line options always take precedence over config file settings:
-#   ./music_suite.sh verify -j 4 /music    # Uses 4 jobs regardless of config
+#   ./auditas.sh verify -j 4 /music    # Uses 4 jobs regardless of config
 #
 # To check which config file is being loaded:
-#   ./music_suite.sh check-deps
-#   # Will show if config is loaded from ~/.music_suite.conf or ./music_suite.conf
+#   ./auditas.sh check-deps
+#   # Will show if config is loaded from ~/.auditas.conf or ./auditas.conf
 #
 # To verify your settings:
-#   grep -v '^#' ~/.music_suite.conf | grep -v '^$'
+#   grep -v '^#' ~/.auditas.conf | grep -v '^$'
 #   # Shows only active (non-comment, non-blank) settings

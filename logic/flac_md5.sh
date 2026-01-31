@@ -1,6 +1,9 @@
 #!/bin/bash
 # Scan for missing FLAC MD5s. Optionally fix them by re-encoding.
-# Usage: music-suite md5 [--fix] [directory]
+# Usage: auditas md5 [--fix] [directory]
+
+# Copyright (C) 2026 Cabe Anderson
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # Source the logging library first for immediate use
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

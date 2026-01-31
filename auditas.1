@@ -1,17 +1,17 @@
-.TH MUSIC-SUITE 1 "January 2026" "1.0.0" "Music Library Management Suite"
+.TH AUDITAS 1 "January 2026" "1.0.0" "Auditas Audio Integrity Suite"
 .SH NAME
-music-suite \- Comprehensive toolkit for managing digital music libraries
+auditas \- Comprehensive toolkit for managing digital music libraries
 .SH SYNOPSIS
-.B music-suite
+.B auditas
 .I COMMAND
 .RI [ OPTIONS ]
 .RI [ ARGUMENTS ]
 .SH DESCRIPTION
-.B music-suite
+.B auditas
 is a professional-grade toolkit for verifying, repairing, and managing large digital music collections. It supports FLAC, MP3, and other formats, with a focus on data integrity and batch processing.
 .SH COMMANDS
 .TP
-.B verify
+.BR verify " (alias: " v )
 Verify integrity of FLAC files using parallel processing.
 .TP
 .B md5
@@ -35,6 +35,9 @@ Scan or fix MP3 library integrity and VBR headers.
 .B verify-gen
 Verify OGG, Opus, M4A, WAV, and AIFF files.
 .TP
+.B reencode
+Re-encode FLACs in the current folder (with verification).
+.TP
 .B clean
 Remove temporary backup files and directories.
 .TP
@@ -49,10 +52,10 @@ Show help message for the tool or a specific command.
 Show version information.
 .SH FILES
 .TP
-.I ~/.config/music_suite/config
+.I ~/.config/auditas/config
 User configuration file.
 .TP
-.I ~/.local/state/music_suite/logs/
+.I ~/.local/state/auditas/logs/
 Directory containing execution logs.
 .SH AUTHOR
 Cabe Anderson

@@ -1,5 +1,5 @@
-# User Configuration (keep music_suite.conf.example)
-music_suite.conf
+# User Configuration (keep auditas.conf.example)
+auditas.conf
 
 # Logs and State
 *.log
@@ -15,4 +15,4 @@ backup_md5/
 tmp_*
 
 # Generated documentation
-music-suite.1.gz
+auditas.1.gz

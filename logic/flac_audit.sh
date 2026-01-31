@@ -13,7 +13,7 @@ JOBS="${DEFAULT_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
 # --- Usage ---
 usage() {
-    log_usage "Usage: $(basename "$0") [OPTIONS] [directory]" "
+    log_usage "Usage: auditas audit [OPTIONS] [directory]" "
 
 Audits the first track of each FLAC album for encoder version and integrity.
 

@@ -23,10 +23,10 @@ source "$SCRIPT_DIR/lib/config.sh"
 usage() {
     log_usage "Usage: $(basename "$0") [COMMAND] [OPTIONS]" "
 
-A suite of tools for managing and verifying digital music libraries.
+Auditas: A professional toolkit for managing and verifying digital music libraries.
 
 COMMANDS:
-  verify         Verify integrity of all FLAC files (parallel)
+  verify (v)     Verify integrity of all FLAC files (parallel)
   md5            Scan or fix missing FLAC MD5 checksums
   reencode       Re-encode FLACs in the current folder (with verification)
   audit          Audit FLAC encoder versions and integrity of first tracks
@@ -51,7 +51,7 @@ COMMAND="$1"
 shift
 
 case "$COMMAND" in
-    verify)
+    verify|v)
         exec bash "$SCRIPT_DIR/logic/flac_verify.sh" "$@"
         ;;
     md5)
@@ -85,7 +85,7 @@ case "$COMMAND" in
         exec bash "$SCRIPT_DIR/logic/util_deps.sh" "$@"
         ;;
     -v|--version)
-        echo "Music Suite v${MUSIC_SUITE_VERSION}"
+        echo "Auditas v${MUSIC_SUITE_VERSION}"
         exit 0
         ;;
     help|--help|-h)

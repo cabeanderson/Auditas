@@ -1,6 +1,6 @@
-# Music Library Management Suite
+# Auditas
 
-A Bash toolkit for verifying, repairing, and managing digital music libraries. Built for audiophiles and archivists handling very large collections. Made with Claude and Gemini.
+**Auditas** is a professional-grade Bash toolkit for verifying, repairing, and managing digital music libraries. Built for audiophiles and archivists handling very large collections.
 
 ## Features
 
@@ -13,15 +13,15 @@ A Bash toolkit for verifying, repairing, and managing digital music libraries. B
 ## Installation
 
 ```bash
-git clone https://github.com/cabeanderson/music-suite.git
-cd music-suite
+git clone https://github.com/cabeanderson/auditas.git
+cd auditas
 
 # Install system-wide
 sudo make install
 
 # Verify
-music-suite --version
-music-suite check-deps
+auditas --version
+auditas check-deps
 ```
 
 ## Commands
@@ -31,7 +31,7 @@ music-suite check-deps
 Comprehensive parallel FLAC integrity checking.
 
 ```bash
-./music_suite.sh verify [OPTIONS] [path]
+./auditas.sh verify [OPTIONS] [path]
 
 Options:
   -f              Enable FFmpeg full decode check (slower, more thorough)
@@ -58,7 +58,7 @@ Examples:
 Detect and fix missing FLAC MD5 checksums.
 
 ```bash
-./music_suite.sh md5 [--fix] [-j jobs] [directory]
+./auditas.sh md5 [--fix] [-j jobs] [directory]
 
 Options:
   --fix     Re-encode files to add MD5 checksums (creates backups)
@@ -81,7 +81,7 @@ Examples:
 Quick check of encoder versions and integrity for first tracks.
 
 ```bash
-./music_suite.sh audit [OPTIONS]
+./auditas.sh audit [OPTIONS]
 
 Options:
   -j jobs     Number of parallel jobs
@@ -102,11 +102,11 @@ Examples:
 Re-encode all FLAC files in the current directory with verification.
 
 ```bash
-./music_suite.sh reencode [-j jobs]
+./auditas.sh reencode [-j jobs]
 
 Examples:
   cd /music/album
-  music_suite.sh reencode
+  auditas.sh reencode
 ```
 
 **Process:**

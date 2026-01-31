@@ -35,7 +35,7 @@ TAGS_TO_REMOVE=(
 
 # --- Usage ---
 usage() {
-    log_usage "Usage: $(basename "$0") [OPTIONS] [path]" "
+    log_usage "Usage: auditas replaygain [OPTIONS] [path]" "
 
 Applies ReplayGain tags to FLAC files, processing albums in parallel.
 

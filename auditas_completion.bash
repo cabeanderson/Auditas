@@ -1,10 +1,10 @@
 #!/bin/bash
-# Bash completion for music_suite.sh
+# Bash completion for auditas.sh
 
 # Copyright (C) 2026 Cabe Anderson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-_music_suite_completion() {
+_auditas_completion() {
     local cur prev words cword
     # Use bash-completion helper if available, otherwise fallback
     if declare -F _init_completion >/dev/null 2>&1; then
@@ -24,7 +24,7 @@ _music_suite_completion() {
         return
     fi
 
-    local commands="verify md5 reencode audit tag-audit mp3 verify-gen replaygain batch clean check-deps help"
+    local commands="verify v md5 reencode audit tag-audit mp3 verify-gen replaygain batch clean check-deps help"
     
     # Find the subcommand (first argument after the script name)
     local command=""
@@ -46,7 +46,7 @@ _music_suite_completion() {
 
     # If we are completing options for a specific command
     case "$command" in
-        verify)
+        verify|v)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $(compgen -W "-f -j -r -m --no-md5 --clear-cache -h --help" -- "$cur") )
             fi
@@ -105,7 +105,6 @@ _music_suite_completion() {
     fi
 }
 
-complete -F _music_suite_completion music_suite.sh
-complete -F _music_suite_completion ./music_suite.sh
-complete -F _music_suite_completion music_suite
-complete -F _music_suite_completion music-suite
+complete -F _auditas_completion auditas.sh
+complete -F _auditas_completion ./auditas.sh
+complete -F _auditas_completion auditas
