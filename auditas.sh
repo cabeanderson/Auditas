@@ -1,6 +1,6 @@
 #!/bin/bash
 # Master dispatcher for the music library management suite.
-# Usage: ./music_suite.sh [COMMAND] [ARGS]
+# Usage: ./auditas.sh [COMMAND] [ARGS]
 
 # Copyright (C) 2026 Cabe Anderson
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -79,13 +79,13 @@ case "$COMMAND" in
         exec bash "$SCRIPT_DIR/logic/workflow_batch.sh" "$@"
         ;;
     clean)
-        exec bash "$SCRIPT_DIR/logic/util_clean.sh" "$@"
+        exec bash "$SCRIPT_DIR/logic/clean.sh" "$@"
         ;;
     check-deps)
-        exec bash "$SCRIPT_DIR/logic/util_deps.sh" "$@"
+        exec bash "$SCRIPT_DIR/logic/check_deps.sh" "$@"
         ;;
     -v|--version)
-        echo "Auditas v${MUSIC_SUITE_VERSION}"
+        echo "Auditas v${AUDITAS_VERSION}"
         exit 0
         ;;
     help|--help|-h)

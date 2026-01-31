@@ -32,8 +32,8 @@ scripts/
     ├── general_verify.sh   # General audio verification (ffmpeg).
     ├── mp3_verify.sh       # MP3 verification and repair.
     ├── tag_audit.sh        # Tag and artwork auditor.
-    ├── util_clean.sh       # Cleanup utility.
-    ├── util_deps.sh        # Dependency checker.
+    ├── clean.sh            # Cleanup utility.
+    ├── check_deps.sh       # Dependency checker.
     └── workflow_batch.sh   # Orchestrates multiple tools.
 ```
 

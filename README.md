@@ -31,7 +31,7 @@ auditas check-deps
 Comprehensive parallel FLAC integrity checking.
 
 ```bash
-./auditas.sh verify [OPTIONS] [path]
+./auditas verify [OPTIONS] [path]
 
 Options:
   -f              Enable FFmpeg full decode check (slower, more thorough)
@@ -58,7 +58,7 @@ Examples:
 Detect and fix missing FLAC MD5 checksums.
 
 ```bash
-./auditas.sh md5 [--fix] [-j jobs] [directory]
+./auditas md5 [--fix] [-j jobs] [directory]
 
 Options:
   --fix     Re-encode files to add MD5 checksums (creates backups)
@@ -81,7 +81,7 @@ Examples:
 Quick check of encoder versions and integrity for first tracks.
 
 ```bash
-./auditas.sh audit [OPTIONS]
+./auditas audit [OPTIONS]
 
 Options:
   -j jobs     Number of parallel jobs
@@ -102,11 +102,11 @@ Examples:
 Re-encode all FLAC files in the current directory with verification.
 
 ```bash
-./auditas.sh reencode [-j jobs]
+./auditas reencode [-j jobs]
 
 Examples:
   cd /music/album
-  auditas.sh reencode
+  auditas reencode
 ```
 
 **Process:**
@@ -121,7 +121,7 @@ Examples:
 Scan and fix MP3 files using mp3val and vbrfixc.
 
 ```bash
-./music_suite.sh mp3 [--fix] [-j jobs] [directory]
+./auditas mp3 [--fix] [-j jobs] [directory]
 
 Options:
   --fix     Repair detected issues (creates .bak files)
@@ -141,7 +141,7 @@ Examples:
 Verify OGG, Opus, M4A, WAV, and AIFF files using FFmpeg.
 
 ```bash
-./music_suite.sh verify-gen [-j jobs] [directory]
+./auditas verify-gen [-j jobs] [directory]
 
 Examples:
   verify-gen /music
@@ -152,7 +152,7 @@ Examples:
 Apply R128 ReplayGain tags to FLAC albums.
 
 ```bash
-./music_suite.sh replaygain [OPTIONS] [path]
+./auditas replaygain [OPTIONS] [path]
 
 Options:
   -j jobs      Number of parallel jobs
@@ -174,7 +174,7 @@ Examples:
 Audit library for missing tags, cover art issues, and inconsistencies.
 
 ```bash
-./music_suite.sh tag-audit [OPTIONS] [directory]
+./auditas tag-audit [OPTIONS] [directory]
 
 Options:
   -j jobs              Number of parallel jobs
@@ -203,7 +203,7 @@ Examples:
 Run a comprehensive workflow on one or more directories.
 
 ```bash
-./music_suite.sh batch [OPTIONS] [directory...]
+./auditas batch [OPTIONS] [directory...]
 
 Workflow Steps:
   1. Verify FLAC integrity
@@ -239,7 +239,7 @@ Examples:
 Remove temporary backup files and directories.
 
 ```bash
-./music_suite.sh clean
+./auditas clean
 
 Removes:
   - backup/ directories
@@ -254,7 +254,7 @@ Removes:
 Verify all required and optional tools are installed.
 
 ```bash
-./music_suite.sh check-deps
+./auditas check-deps
 ```
 
 ## Configuration
@@ -523,10 +523,10 @@ new_md5=$(ffmpeg -i reencoded.flac -f wav - | md5sum)
 
 ```text
 .
-├── music_suite.sh          # Main entry point
-├── music-suite.1           # Man page
-├── music_suite_completion.bash # Bash completion script
-├── music_suite.conf.example # Configuration template
+├── auditas.sh              # Main entry point
+├── auditas.1               # Man page
+├── auditas_completion.bash # Bash completion script
+├── auditas.conf.example    # Configuration template
 ├── Makefile                # Installation script
 ├── LICENSE.md              # License file
 ├── CHANGELOG.md            # Version history
@@ -547,8 +547,8 @@ new_md5=$(ffmpeg -i reencoded.flac -f wav - | md5sum)
     ├── general_verify.sh   # Multi-format verifier
     ├── mp3_verify.sh       # MP3 tools
     ├── tag_audit.sh        # Tag quality auditor
-    ├── util_clean.sh       # Cleanup utility
-    ├── util_deps.sh        # Dependency checker
+    ├── clean.sh            # Cleanup utility
+    ├── check_deps.sh       # Dependency checker
     └── workflow_batch.sh   # Workflow orchestrator
 ```
 

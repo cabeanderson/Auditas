@@ -137,7 +137,7 @@ while IFS='|' read -r color_code dir file version status; do
         yellow) color="${COLOR_YELLOW}" ;;
     esac
 
-    printf "%s | %s | ${color}%s\033[0m | %s\n" "$dir" "$file" "$version" "$status"
+    printf "%s | %s | ${color}%s${COLOR_RESET} | %s\n" "$dir" "$file" "$version" "$status"
 
     if [[ -n "$OUTPUT_FILE" && "$color_code" == "red" ]]; then
         # Reconstruct full path for the log file

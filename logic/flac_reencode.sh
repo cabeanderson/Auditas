@@ -139,6 +139,7 @@ log_header "Re-encoding all files..."
 printf "%-80s | %-18s | %s\n" "File" "Progress" "Status"
 echo "-----------------------------------------------------------------------------"
 
-find . -maxdepth 1 -name "*.flac" -print0 | xargs -0 -n 1 -P "$JOBS" bash -c 'reencode_worker "$0"'
+WORKER_CMD="source \"$SCRIPT_DIR/../lib/logging.sh\"; source \"$SCRIPT_DIR/../lib/parallel.sh\"; source \"$SCRIPT_DIR/../lib/config.sh\"; source \"$SCRIPT_DIR/../lib/utils.sh\"; reencode_worker \"\$0\""
+find . -maxdepth 1 -name "*.flac" -print0 | xargs -0 -n 1 -P "$JOBS" bash -c "$WORKER_CMD"
 
 log_success "All done. Original files moved to 'backup/'."

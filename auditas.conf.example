@@ -150,13 +150,13 @@ MIN_COVER_SIZE=500
 
 # All settings can also be overridden via environment variables:
 #   export DEFAULT_JOBS=16
-#   ./auditas.sh verify /music
+#   auditas verify /music
 #
 # Command-line options always take precedence over config file settings:
-#   ./auditas.sh verify -j 4 /music    # Uses 4 jobs regardless of config
+#   auditas verify -j 4 /music    # Uses 4 jobs regardless of config
 #
 # To check which config file is being loaded:
-#   ./auditas.sh check-deps
+#   auditas check-deps
 #   # Will show if config is loaded from ~/.auditas.conf or ./auditas.conf
 #
 # To verify your settings:

@@ -102,6 +102,7 @@ fi
 # Source the library
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/parallel.sh"
+source "$SCRIPT_DIR/../lib/config.sh"
 source "$SCRIPT_DIR/../lib/utils.sh"
 
 # Define the worker function
@@ -119,7 +120,7 @@ fix_md5_file() {
     mkdir -p "$backup_dir"
 
     # Re-encode
-    if flac -8 --verify --preserve-modtime "$f" -o "$temp_file" >/dev/null 2>&1; then
+    if flac -"${FLAC_COMPRESSION_LEVEL:-8}" --verify --preserve-modtime "$f" -o "$temp_file" >/dev/null 2>&1; then
         # Verify bit-perfect audio by comparing decoded MD5 hashes
         old_md5=$(calculate_audio_hash "$f")
         new_md5=$(calculate_audio_hash "$temp_file")
@@ -156,7 +157,7 @@ printf "%-80s | %-18s | %s\n" "File" "Progress" "Status"
 echo "---------------------------------------------------------------------------------------------"
 
 # Construct the worker command string, explicitly sourcing libraries to ensure functions are available
-WORKER_CMD="source \"$SCRIPT_DIR/../lib/parallel.sh\"; source \"$SCRIPT_DIR/../lib/utils.sh\"; fix_md5_file \"\$0\""
+WORKER_CMD="source \"$SCRIPT_DIR/../lib/logging.sh\"; source \"$SCRIPT_DIR/../lib/parallel.sh\"; source \"$SCRIPT_DIR/../lib/config.sh\"; source \"$SCRIPT_DIR/../lib/utils.sh\"; fix_md5_file \"\$0\""
 
 printf '%s\0' "${files_to_fix[@]}" | xargs -0 -n 1 -P "$JOBS" bash -c "$WORKER_CMD"
 

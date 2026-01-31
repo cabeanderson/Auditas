@@ -143,7 +143,7 @@ export DRY_RUN LOG_FILE LOUDGAIN_TARGET
 export -a TAGS_TO_REMOVE
 
 # Construct the worker command string, explicitly sourcing libraries to ensure functions are available
-WORKER_CMD="source \"$SCRIPT_DIR/../lib/parallel.sh\"; source \"$SCRIPT_DIR/../lib/utils.sh\"; process_album_worker \"\$0\""
+WORKER_CMD="source \"$SCRIPT_DIR/../lib/logging.sh\"; source \"$SCRIPT_DIR/../lib/parallel.sh\"; source \"$SCRIPT_DIR/../lib/utils.sh\"; process_album_worker \"\$0\""
 
 printf '%s\0' "${albums_to_process[@]}" | xargs -0 -n 1 -P "$JOBS" bash -c "$WORKER_CMD"
 

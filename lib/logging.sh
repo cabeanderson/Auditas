@@ -31,44 +31,43 @@ export COLOR_RESET COLOR_RED COLOR_GREEN COLOR_YELLOW COLOR_BLUE COLOR_BOLD
 # Prints a major header.
 # Usage: log_header "My Header"
 log_header() {
-    echo
-    echo -e "${COLOR_BLUE}${COLOR_BOLD}==> ${1}${COLOR_RESET}"
+    printf "\n${COLOR_BLUE}${COLOR_BOLD}==> %s${COLOR_RESET}\n" "${1}"
 }
 
 # Prints an informational message.
 # Usage: log_info "Doing something..."
 log_info() {
-    echo -e "    ${1}"
+    printf "    %s\n" "${1}"
 }
 
 # Prints a success message.
 # Usage: log_success "Operation complete."
 log_success() {
-    echo -e "${COLOR_GREEN}  ✓ ${1}${COLOR_RESET}"
+    printf "${COLOR_GREEN}  ✓ %s${COLOR_RESET}\n" "${1}"
 }
 
 # Prints an error message to stderr.
 # Usage: log_error "Something went wrong."
 log_error() {
-    echo -e "${COLOR_RED}  ✗ ERROR: ${1}${COLOR_RESET}" >&2
+    printf "${COLOR_RED}  ✗ ERROR: %s${COLOR_RESET}\n" "${1}" >&2
 }
 
 # Prints a warning message.
 # Usage: log_warning "This is deprecated."
 log_warning() {
-    echo -e "${COLOR_YELLOW}  ⚠️  WARNING: ${1}${COLOR_RESET}"
+    printf "${COLOR_YELLOW}  ⚠️  WARNING: %s${COLOR_RESET}\n" "${1}"
 }
 
 # Prints a user prompt.
 # Usage: log_prompt "Continue? [y/N]"
 log_prompt() {
-    echo -n -e "${COLOR_YELLOW}  ? ${1}: ${COLOR_RESET}"
+    printf "${COLOR_YELLOW}  ? %s: ${COLOR_RESET}" "${1}"
 }
 
 # Prints usage information in a standard format.
 # Usage: log_usage "Usage: script [options]" "Description..."
 log_usage() {
-    echo -e "${COLOR_BOLD}${1}${COLOR_RESET}\n\n${2}"
+    printf "${COLOR_BOLD}%s${COLOR_RESET}\n\n%s\n" "${1}" "${2}"
 }
 
 # Export functions for use in subshells
