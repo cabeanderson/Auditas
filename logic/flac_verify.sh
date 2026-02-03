@@ -23,7 +23,7 @@ CHECK_MD5=1
 RESUME=0
 LOG="${LOG_DIRECTORY}/flac_failures_$(date +%Y%m%d_%H%M%S).log"
 MD5_REPORT="${LOG_DIRECTORY}/flac_missing_md5_$(date +%Y%m%d_%H%M%S).log"
-VERIFIED_LOG="${STATE_DIRECTORY}/verified_cache"
+VERIFIED_LOG="${STATE_DIRECTORY}/verified.log"
 LOG_LOCK="/tmp/flac_log_$$.lock"
 VERIFIED_LOCK="/tmp/flac_verified_$$.lock"
 MD5_LOCK="/tmp/flac_md5_$$.lock"
@@ -37,7 +37,7 @@ FLAC file verification tool with parallel processing and resume capability.
 OPTIONS:
   -f              Enable ffmpeg full decode check
   -j jobs         Number of parallel jobs (default: nproc)
-  -r, --resume-from-crash   Resume mode - skip previously verified files
+  -r, --resume    Resume mode - skip previously verified files
   -m, --no-md5    Disable MD5 missing check (enabled by default)
   --clear-cache   Clear verification cache and start fresh
   -h, --help      Show this help message
@@ -67,7 +67,7 @@ while [[ $# -gt 0 ]]; do
             JOBS="$2"
             shift 2
             ;;
-        -r|--resume-from-crash)
+        -r|--resume)
             RESUME=1
             shift
             ;;

@@ -20,7 +20,7 @@
 # Define paths based on XDG standards
 : "${LOG_DIRECTORY:=$XDG_DATA_HOME/auditas/logs}"
 : "${STATE_DIRECTORY:=$XDG_STATE_HOME/auditas/state}"
-: "${CACHE_DIRECTORY:=$STATE_DIRECTORY}" # Map cache to state directory as requested
+: "${CACHE_DIRECTORY:=$XDG_CACHE_HOME/auditas}"
 
 LOADED_CONFIG_FILE=""
 
@@ -42,6 +42,16 @@ load_config "/etc/auditas/config"
 load_config "$XDG_CONFIG_HOME/auditas/config"
 load_config "./auditas.conf"
 
+# Check for legacy configuration files (only warn once per session)
+if [[ -z "$AUDITAS_CONFIG_CHECKED" ]]; then
+    if [[ -f "$HOME/.music_suite.conf" ]] || [[ -d "$HOME/.config/music_suite" ]]; then
+        if [[ -z "$LOADED_CONFIG_FILE" ]]; then
+            log_warning "Old music_suite config detected. Please migrate to:"
+            log_info "  $XDG_CONFIG_HOME/auditas/config"
+        fi
+    fi
+    export AUDITAS_CONFIG_CHECKED=1
+fi
 
 # Ensure directories exist
 mkdir -p "$LOG_DIRECTORY" "$CACHE_DIRECTORY" "$STATE_DIRECTORY"

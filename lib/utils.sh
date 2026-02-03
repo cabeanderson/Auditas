@@ -29,17 +29,17 @@ truncate_path() {
 }
 
 # Prints a standardized status row with alignment
-# Usage: print_status_row "Name" "Progress Bar" "Status Message" [width]
+# Usage: print_status_row "Name" "Progress Bar" "Status Message" [name_width]
 print_status_row() {
     local name="$1"
     local bar="$2"
     local status="$3"
-    local width="${4:-80}"
+    local name_width="${4:-80}"
 
-    local display_name=$(truncate_path "$name" "$width")
+    local display_name=$(truncate_path "$name" "$name_width")
     display_name=${display_name%$'\r'}
     
-    printf "%-${width}s | %-18s | %b\n" "$display_name" "$bar" "$status"
+    printf "%-${name_width}s | %-18s | %b\n" "$display_name" "$bar" "$status"
 }
 
 export -f calculate_audio_hash truncate_path print_status_row

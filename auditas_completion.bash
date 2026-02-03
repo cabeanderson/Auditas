@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bash completion for auditas.sh
+# Bash completion for auditas
 
 # Copyright (C) 2026 Cabe Anderson
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -24,7 +24,8 @@ _auditas_completion() {
         return
     fi
 
-    local commands="verify v md5 reencode audit tag-audit mp3 verify-gen replaygain batch clean check-deps help"
+    local commands="verify v md5 reencode audit tag-audit mp3 verify-gen replaygain batch clean check-deps"
+    local flags="-v --version -h --help"
     
     # Find the subcommand (first argument after the script name)
     local command=""
@@ -39,7 +40,11 @@ _auditas_completion() {
     # If no command found yet, complete commands
     if [[ -z "$command" ]]; then
         if [[ $cword -eq 1 ]]; then
-            COMPREPLY=( $(compgen -W "${commands}" -- "$cur") )
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=( $(compgen -W "${flags}" -- "$cur") )
+            else
+                COMPREPLY=( $(compgen -W "${commands}" -- "$cur") )
+            fi
         fi
         return
     fi
@@ -91,7 +96,7 @@ _auditas_completion() {
                 COMPREPLY=( $(compgen -W "--dry-run --force --resume --skip-verify --skip-md5 --skip-replaygain --skip-audit --parallel-dirs --auto-discover -h --help" -- "$cur") )
             fi
             ;;
-        clean|check-deps|help)
+        clean|check-deps)
             ;;
     esac
     
@@ -105,6 +110,6 @@ _auditas_completion() {
     fi
 }
 
-complete -F _auditas_completion auditas.sh
-complete -F _auditas_completion ./auditas.sh
+complete -F _auditas_completion auditas
+complete -F _auditas_completion ./auditas
 complete -F _auditas_completion auditas

@@ -28,7 +28,7 @@ usage() {
 Verifies integrity of OGG, Opus, M4A, WAV, and AIFF files using ffmpeg.
 
 OPTIONS:
-  -r, --resume-from-crash   Resume mode - skip previously verified files
+  -r, --resume    Resume mode - skip previously verified files
   -j JOBS   Number of parallel jobs (default: nproc)
   -h        Show this help message"
     exit 1
@@ -37,7 +37,7 @@ OPTIONS:
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -j) JOBS="$2"; shift 2 ;;
-        -r|--resume-from-crash) RESUME=1; shift ;;
+        -r|--resume) RESUME=1; shift ;;
         -h|--help) usage ;;
         *) ROOT="$1"; shift ;;
     esac

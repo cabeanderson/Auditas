@@ -1,9 +1,9 @@
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
-LIBDIR ?= $(PREFIX)/lib/auditas
+SHAREDIR ?= $(PREFIX)/share/auditas
 DOCDIR ?= $(PREFIX)/share/doc/auditas
 MANDIR ?= $(PREFIX)/share/man/man1
-COMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
+BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 VERSION ?= 1.0.0
 DISTNAME = auditas-$(VERSION)
 
@@ -19,12 +19,10 @@ all:
 	@echo "Run 'make test' to run local test suite"
 
 check:
-	@if command -v auditas >/dev/null 2>&1; then \
-		auditas check-deps; \
-	elif [ -f ./auditas.sh ]; then \
+	@if [ -f ./auditas.sh ]; then \
 		./auditas.sh check-deps; \
 	else \
-		echo "Error: auditas not found in PATH or current directory."; \
+		echo "Error: auditas.sh not found."; \
 		exit 1; \
 	fi
 
@@ -39,36 +37,30 @@ install-system: install
 
 install:
 	@echo "Installing to $(PREFIX)..."
-	install -d $(DESTDIR)$(LIBDIR)
-	cp -r lib logic auditas.sh $(DESTDIR)$(LIBDIR)/
+	install -d $(DESTDIR)$(SHAREDIR)
+	install -d $(DESTDIR)$(SHAREDIR)/lib
+	install -d $(DESTDIR)$(SHAREDIR)/logic
+	install -m 0755 auditas.sh $(DESTDIR)$(SHAREDIR)/auditas
+	install -m 0644 lib/*.sh $(DESTDIR)$(SHAREDIR)/lib/
+	install -m 0755 logic/*.sh $(DESTDIR)$(SHAREDIR)/logic/
 	install -d $(DESTDIR)$(BINDIR)
-	ln -sf ../lib/auditas/auditas.sh $(DESTDIR)$(BINDIR)/auditas
+	printf '#!/bin/bash\nexec $(SHAREDIR)/auditas "$$@"\n' > $(DESTDIR)$(BINDIR)/auditas
+	chmod 0755 $(DESTDIR)$(BINDIR)/auditas
 	install -d $(DESTDIR)$(DOCDIR)
-	cp README.md LICENSE.md auditas.conf.example $(DESTDIR)$(DOCDIR)/
+	install -m 0644 README.md LICENSE.md auditas.conf.example CHANGELOG.md CONTRIBUTING.md ARCHITECTURE.md $(DESTDIR)$(DOCDIR)/
 	install -d $(DESTDIR)$(MANDIR)
-	gzip -c auditas.1 > $(DESTDIR)$(MANDIR)/auditas.1.gz
-	chmod 644 $(DESTDIR)$(MANDIR)/auditas.1.gz
-	install -d $(DESTDIR)$(COMPLETIONDIR)
-	cp auditas_completion.bash $(DESTDIR)$(COMPLETIONDIR)/auditas
-	@echo "Installation complete. Run 'auditas' to start."
-	@echo "Example config: $(DOCDIR)/auditas.conf.example"
+	if [ -f auditas.1 ]; then gzip -c auditas.1 > $(DESTDIR)$(MANDIR)/auditas.1.gz && chmod 644 $(DESTDIR)$(MANDIR)/auditas.1.gz; fi
+	install -d $(DESTDIR)$(BASHCOMPDIR)
+	install -m 0644 auditas_completion.bash $(DESTDIR)$(BASHCOMPDIR)/auditas
+	@echo "Installation complete."
 
 uninstall:
 	@echo "Uninstalling..."
-	@if [ -d "$$HOME/.config/auditas" ]; then \
-		echo "Note: User config in ~/.config/auditas not removed"; \
-	fi
-	rm -rf $(DESTDIR)$(LIBDIR)
+	rm -rf $(DESTDIR)$(SHAREDIR)
 	rm -f $(DESTDIR)$(BINDIR)/auditas
 	rm -rf $(DESTDIR)$(DOCDIR)
 	rm -f $(DESTDIR)$(MANDIR)/auditas.1.gz
-	rm -f $(DESTDIR)$(COMPLETIONDIR)/auditas
-	@echo "Removing legacy Music Suite files..."
-	rm -rf $(DESTDIR)$(PREFIX)/lib/music_suite
-	rm -f $(DESTDIR)$(BINDIR)/music-suite
-	rm -rf $(DESTDIR)$(PREFIX)/share/doc/music_suite
-	rm -f $(DESTDIR)$(MANDIR)/music-suite.1.gz
-	rm -f $(DESTDIR)$(COMPLETIONDIR)/music-suite
+	rm -f $(DESTDIR)$(BASHCOMPDIR)/auditas
 	@echo "Uninstallation complete."
 
 clean:

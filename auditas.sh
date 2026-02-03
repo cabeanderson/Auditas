@@ -1,6 +1,6 @@
 #!/bin/bash
 # Master dispatcher for the music library management suite.
-# Usage: ./auditas.sh [COMMAND] [ARGS]
+# Usage: ./auditas [COMMAND] [ARGS]
 
 # Copyright (C) 2026 Cabe Anderson
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -23,7 +23,7 @@ source "$SCRIPT_DIR/lib/config.sh"
 usage() {
     log_usage "Usage: $(basename "$0") [COMMAND] [OPTIONS]" "
 
-Auditas: A professional toolkit for managing and verifying digital music libraries.
+Auditas: Verify and maintain your digital music collection
 
 COMMANDS:
   verify (v)     Verify integrity of all FLAC files (parallel)

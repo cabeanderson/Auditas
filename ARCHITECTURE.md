@@ -1,72 +1,210 @@
-# Architecture & Design
+Architecture & Design
 
-## 📑 Table of Contents
+This document details the internal design, directory structure, and engineering patterns used in Auditas. It is intended for developers, contributors, and advanced users who want to understand how the toolkit is structured and how the components interact.
 
-1.  [Project Structure](#-project-structure)
-2.  [File Descriptions](#-file-descriptions)
-3.  [Configuration](#-configuration)
-4.  [Design Patterns](#-design-patterns)
-5.  [Adding New Tools](#-adding-new-tools)
+Project Structure
 
-##  Project Structure
+Auditas follows a modular design to separate the CLI interface from core logic and shared utilities.
 
-The project follows a modular design to separate the user interface (CLI) from the core logic and shared utilities.
+.
+├── auditas.sh              # Entry point (Dispatcher)
+├── auditas.conf.example    # Configuration template
+├── lib/                    # Shared libraries
+│   ├── config.sh           # Configuration loader
+│   ├── deps.sh             # Dependency definitions
+│   ├── lock.sh             # Temporary file and trap management
+│   ├── logging.sh          # Standardized colored output
+│   ├── parallel.sh         # Parallel execution, counters, progress bars
+│   └── utils.sh            # Common helpers
+└── logic/                  # Implementation of specific tools
+    ├── flac_audit.sh       # Encoder version auditor
+    ├── flac_md5.sh         # MD5 scanning and fixing
+    ├── flac_reencode.sh    # FLAC re-encoder
+    ├── flac_replaygain.sh  # ReplayGain tagging
+    ├── flac_verify.sh      # FLAC verification logic
+    ├── general_verify.sh   # General audio verification (ffmpeg)
+    ├── mp3_verify.sh       # MP3 verification and repair
+    ├── tag_audit.sh        # Tag and artwork auditor
+    ├── clean.sh            # Cleanup utility
+    ├── check_deps.sh       # Dependency checker
+    └── workflow_batch.sh   # Orchestrates multiple tools
 
-```text
-scripts/
-├── music_suite.sh          # Entry point. Dispatches commands to logic/ scripts.
-├── music_suite.conf.example # Configuration template.
-├── lib/                    # Shared libraries.
-│   ├── config.sh           # Loads configuration.
-│   ├── deps.sh             # Defines dependency lists.
-│   ├── lock.sh             # Manages temporary file cleanup and traps.
-│   ├── logging.sh          # Standardized colored output.
-│   ├── parallel.sh         # Manages parallel execution, counters, and progress bars.
-│   └── utils.sh            # Common helpers (path truncation, hashing).
-└── logic/                  # Implementation of specific tools.
-    ├── flac_audit.sh       # Encoder version auditor.
-    ├── flac_md5.sh         # MD5 scanning and fixing.
-    ├── flac_reencode.sh    # FLAC re-encoder.
-    ├── flac_replaygain.sh  # ReplayGain tagging.
-    ├── flac_verify.sh      # FLAC verification logic.
-    ├── general_verify.sh   # General audio verification (ffmpeg).
-    ├── mp3_verify.sh       # MP3 verification and repair.
-    ├── tag_audit.sh        # Tag and artwork auditor.
-    ├── clean.sh            # Cleanup utility.
-    ├── check_deps.sh       # Dependency checker.
-    └── workflow_batch.sh   # Orchestrates multiple tools.
+Design Patterns
+1. Dispatcher Pattern
+
+auditas.sh acts as a thin wrapper.
+
+Handles command-line parsing and configuration loading.
+
+Dispatches commands to the corresponding script in logic/.
+
+Allows tools to be developed and tested independently.
+
+2. Parallel Processing
+
+Most tools use parallel execution to maximize CPU and I/O throughput.
+
+Implemented via xargs -P or custom job management in lib/parallel.sh.
+
+Shared counters and progress bars use atomic file operations for thread-safety.
+
+Each parallel job explicitly sources necessary libraries to avoid environment issues.
+
+3. Thread-Safety
+
+Concurrency is managed with file locks (flock) on dedicated file descriptors:
+
+| FD | Purpose |
+| :--- | :--- |
+| 200 | Logging to shared failure logs |
+| 201 | Writing to the verified cache file |
+| 202 | Updating progress counters |
+| 203 | Writing MD5 missing reports |
+
+This ensures multiple parallel jobs do not overwrite logs or counters.
+
+4. Resume Capability
+
+Long-running tasks (e.g., verify, batch) can resume from last progress.
+
+Uses a set difference algorithm to efficiently skip already-processed files:
+
+```bash
+comm -23 <(sort all_files) <(sort verified.log)
 ```
 
-## 🧩 Design Patterns
 
-### 1. The Dispatcher Pattern
-`music_suite.sh` acts as a thin wrapper. It handles the initial command parsing and `exec`s the corresponding script in `logic/`. This keeps the root directory clean and allows tools to be developed and tested independently.
+Time complexity: O(n log n) versus O(n²) for naive per-file checks.
 
-### 2. Parallel Processing
-Most tools utilize `xargs -P` for parallelism to maximize CPU and I/O usage.
+Cached state is stored in ~/.local/state/auditas/state/verified.log.
 
-*   **State Management**: `lib/parallel_lib.sh` manages a shared counter and total count using atomic file operations.
-*   **Environment Isolation**: To avoid issues with function exporting in subshells, the command string passed to `xargs` explicitly sources the required libraries (e.g., `source .../logging.sh`).
+5. Bit-Perfect Verification
 
-### 3. Thread-Safety
-Concurrency is managed via `flock` (file locking) on specific file descriptors to prevent race conditions when writing to logs or updating counters:
+Ensures audio content is unchanged during re-encoding.
 
-*   **FD 200** (`$LOG_LOCK`): Logging to shared failure logs.
-*   **FD 201** (`$VERIFIED_LOCK`): Writing to the "verified" cache file.
-*   **FD 202** (`$COUNTER_LOCK`): Updating the progress counter.
+Compares MD5 of decoded PCM streams:
 
-### 4. Resume Capability
-Long-running tasks (like verification) support resuming. This is implemented using a set difference algorithm (`comm -23`) between the full file list and the list of already verified files stored in cache logs (e.g., `.flac_verified.log`). This allows the script to skip already-processed files in $O(n \log n)$ time, which is significantly faster than checking files one by one.
+```bash
+old_md5=$(ffmpeg -i original.flac -f wav - | md5sum)
+new_md5=$(ffmpeg -i reencoded.flac -f wav - | md5sum)
 
-## 🛠️ Adding New Tools
+[[ "$old_md5" == "$new_md5" ]] && mv reencoded.flac original.flac
+```
 
-To add a new tool to the suite:
 
-1.  Create the script in `logic/`.
-2.  Source the necessary libraries using relative paths:
-    ```bash
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    source "$SCRIPT_DIR/../lib/logging.sh"
-    ```
-3.  Add the command to the `case` statement in `music_suite.sh`.
-4.  (Optional) Add dependencies to `lib/deps.sh`.
+Guarantees metadata updates or compression changes do not alter audio data.
+
+6. Backup and Safety
+
+Any destructive operation (reencode, md5 --fix, mp3 --fix) creates backups:
+
+*   `backup/` for re-encodes
+
+*   `backup_md5/` for MD5 fixes
+
+*   `.bak` files for MP3 repairs
+
+Ensures recoverability in case of errors or accidental modifications.
+
+7. Configuration Management
+
+Configuration is loaded in order:
+
+1.  `/etc/auditas/config` – system-wide
+
+2.  `~/.config/auditas/config` – user
+
+3.  `./auditas.conf` – local override
+
+Supports environment variable overrides:
+
+```bash
+export DEFAULT_JOBS=16
+export AUDITAS_BASE=/mnt/data/auditas-data
+```
+
+
+Centralizes defaults like FLAC_COMPRESSION_LEVEL and REPLAYGAIN_TARGET.
+
+8. Logging & Reporting
+
+Centralized via lib/logging.sh.
+
+Provides color-coded output (INFO, WARNING, ERROR).
+
+Persistent logs stored in `~/.local/state/auditas/logs/`.
+
+Reports for verification failures, missing MD5, ReplayGain errors, and batch workflows.
+
+9. Workflow Orchestration
+
+workflow_batch.sh combines multiple steps in a single automated process:
+
+*   FLAC verification
+
+*   MD5 checksum fixes
+
+*   ReplayGain tagging
+
+*   Encoder audit
+
+Supports resume, dry-run, and selective skipping of steps.
+
+10. Adding New Tools
+
+To integrate a new tool into Auditas:
+
+Create the script in logic/.
+
+Source required libraries using relative paths:
+
+```bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/logging.sh"
+```
+
+
+Add a case entry in auditas.sh:
+
+```bash
+case "$1" in
+    newtool) exec "$SCRIPT_DIR/logic/newtool.sh" "${@:2}" ;;
+esac
+```
+
+
+Add dependencies to lib/deps.sh if necessary.
+
+11. Performance Considerations
+
+Thread Count (-j) configurable per operation.
+
+Optimized for massive libraries (100K+ files) with minimal memory usage:
+
+*   100K files ≈ 5–10 MB RAM
+
+*   1M files ≈ 50–100 MB RAM
+
+Resume filtering reduces verification time from hours to seconds.
+
+Temporary files stored in /tmp and automatically cleaned.
+
+12. Supported Formats
+
+| Format | Verification / Fixing | Notes |
+| :--- | :--- | :--- |
+| FLAC | `verify`, `reencode`, `md5`, `audit` | Full bit-perfect checks |
+| MP3 | `mp3` | Stream and VBR header repair |
+| OGG, Opus, M4A, WAV, AIFF | `verify-gen` | Uses FFmpeg decoding |
+
+13. Key Design Principles
+
+Modularity – Each tool is independent and composable.
+
+Reliability – Bit-perfect checks, safe backups.
+
+Performance – Parallelized and optimized for huge libraries.
+
+Resilience – Resume, logging, and error reporting.
+
+User Safety – Non-destructive operations by default.
