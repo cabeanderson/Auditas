@@ -296,7 +296,7 @@ while IFS='|' read -r filepath album artist issues; do
     [[ -z "$filepath" ]] && continue
     files_with_issues=$((files_with_issues + 1))
     
-    local album_dir=$(dirname "$filepath")
+    album_dir=$(dirname "$filepath")
     album_file_issues["$album_dir"]+="  $(basename "$filepath"): $issues"$'\n'
     
     # Count severity
@@ -366,24 +366,23 @@ if [[ $albums_with_issues -gt 0 ]] || [[ $files_with_issues -gt 0 ]]; then
     done
     
     # Sort and display
-    for album_dir in $(printf '%s\n' "${!all_album_issues[@]}" | sort); do
-        local album_name=$(basename "$album_dir")
+    while IFS= read -r album_dir; do
+        [[ -z "$album_dir" ]] && continue
+        album_name=$(basename "$album_dir")
         echo "${COLOR_BOLD}Album: $album_name${COLOR_RESET}"
         echo "Path: $album_dir"
         
-        # Show album-level issues
         if [[ -n "${album_level_issues[$album_dir]}" ]]; then
             echo "Album issues: ${album_level_issues[$album_dir]}"
         fi
         
-        # Show file-level issues
         if [[ -n "${album_file_issues[$album_dir]}" ]]; then
             echo "File issues:"
             echo "${album_file_issues[$album_dir]}"
         fi
         
         echo ""
-    done
+    done < <(printf '%s\n' "${!all_album_issues[@]}" | sort)
 else
     log_success "No issues found! Library is in excellent condition."
 fi
