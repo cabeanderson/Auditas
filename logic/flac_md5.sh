@@ -5,15 +5,19 @@
 # Copyright (C) 2026 Cabe Anderson
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Source the logging library first for immediate use
+# Source libraries first so logging/config are available for arg parsing and defaults
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/logging.sh"
+source "$SCRIPT_DIR/../lib/config.sh"
+source "$SCRIPT_DIR/../lib/parallel.sh"
+source "$SCRIPT_DIR/../lib/utils.sh"
 
 set -e
 set -o pipefail
 
 MODE="scan"
 DIR="."
+JOBS="${DEFAULT_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 ASSUME_YES=0
 
 # Parse arguments
@@ -44,6 +48,9 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Guard against a bad/empty -j value (e.g. -j without a number) breaking xargs -P
+[[ "$JOBS" =~ ^[1-9][0-9]*$ ]] || JOBS="$(nproc 2>/dev/null || echo 4)"
 
 if [[ ! -d "$DIR" ]]; then
     log_error "Directory '$DIR' not found."
@@ -98,12 +105,6 @@ if [[ "$ASSUME_YES" -eq 0 ]]; then
         exit 0
     fi
 fi
-
-# Source the library
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/parallel.sh"
-source "$SCRIPT_DIR/../lib/config.sh"
-source "$SCRIPT_DIR/../lib/utils.sh"
 
 # Define the worker function
 fix_md5_file() {

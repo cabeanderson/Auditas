@@ -5,6 +5,12 @@
 set -e
 set -o pipefail
 
+# Source libraries first so logging/config are available for arg parsing and defaults
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/logging.sh"
+source "$SCRIPT_DIR/../lib/parallel.sh"
+source "$SCRIPT_DIR/../lib/config.sh"
+
 # --- Defaults ---
 STRICT_MODE=0
 OUTPUT_FILE=""
@@ -54,11 +60,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Source the parallel library
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/logging.sh"
-source "$SCRIPT_DIR/../lib/parallel.sh"
-source "$SCRIPT_DIR/../lib/config.sh"
+# Guard against a bad/empty -j value (e.g. -j without a number) breaking xargs -P
+[[ "$JOBS" =~ ^[1-9][0-9]*$ ]] || JOBS="$(nproc 2>/dev/null || echo 4)"
 
 # --- Worker Function ---
 audit_worker() {

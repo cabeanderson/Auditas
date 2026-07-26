@@ -53,6 +53,14 @@ FLAC_COMPRESSION_LEVEL=8
 #
 REPLAYGAIN_TARGET=-18
 
+# Which ReplayGain scanner to use: "rsgain" or "loudgain"
+# Default: auto-detect (prefers rsgain if both are installed)
+#
+# rsgain is the actively maintained successor to loudgain and is recommended.
+# Only set this if you have both installed and want to force a specific one.
+#
+# REPLAYGAIN_TOOL=rsgain
+
 # ==============================================================================
 # LOGGING & OUTPUT
 # ==============================================================================

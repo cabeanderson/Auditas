@@ -89,9 +89,11 @@ auditas audit --output old_encoders.txt
 
 ### Re-encode FLAC Albums
 
-Safely re-encode all files in the current directory:
+Safely re-encode all FLAC files in a directory (defaults to the current directory if omitted):
 
 ```bash
+auditas reencode /music/Album
+# or, from inside the album directory:
 cd /music/Album
 auditas reencode
 ```
@@ -114,6 +116,8 @@ Supports OGG, Opus, M4A, WAV, and AIFF.
 auditas replaygain /music
 auditas replaygain --dry-run /music
 ```
+
+Requires `rsgain` (preferred, actively maintained) or `loudgain` on PATH; auto-detected, or force one with `REPLAYGAIN_TOOL=rsgain|loudgain` in your config.
 
 ### Tag & Artwork Audit
 ```bash

@@ -26,7 +26,7 @@ RDEPEND="
 		media-sound/mp3val
 		media-sound/vbrfix
 	)
-	replaygain? ( media-sound/loudgain )
+	replaygain? ( || ( media-sound/rsgain media-sound/loudgain ) )
 "
 
 src_install() {

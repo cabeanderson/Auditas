@@ -50,6 +50,8 @@ Shared counters and progress bars use atomic file operations for thread-safety.
 
 Each parallel job explicitly sources necessary libraries to avoid environment issues.
 
+Bash cannot export arrays into a child process's environment (only scalars survive `export` + `exec`, e.g. via `xargs -P ... bash -c`) — `export -a some_array` is silently a no-op for any subprocess that isn't a direct fork. Where a worker needs array data (option lists, tag name lists, etc.), bake the array as literal, `%q`-quoted tokens into the `WORKER_CMD` string built by the parent before dispatch, rather than trying to export it. See `flac_replaygain.sh` for the pattern.
+
 3. Thread-Safety
 
 Concurrency is managed with file locks (flock) on dedicated file descriptors:
@@ -125,6 +127,10 @@ export AUDITAS_BASE=/mnt/data/auditas-data
 
 
 Centralizes defaults like FLAC_COMPRESSION_LEVEL and REPLAYGAIN_TARGET.
+
+`flac_replaygain.sh` auto-detects `rsgain` (preferred, actively maintained) or `loudgain` on PATH and translates the shared options (mode, clip protection, target loudness) into each tool's own flag syntax; `REPLAYGAIN_TOOL=rsgain|loudgain` in config forces one explicitly. The two tools are not flag-compatible, so any new option added to that worker needs an entry in both branches of the `case "$REPLAYGAIN_TOOL"` block.
+
+Scripts that source libraries after their argument-parsing loop cannot call `usage()`/`log_usage` from within that loop (e.g. for `-h`) — the logging library won't be loaded yet. Source `lib/logging.sh` (and any lib whose defaults the arg parser depends on, e.g. `config.sh` for a `-j` default) before the `while` loop that parses `$@`.
 
 8. Logging & Reporting
 

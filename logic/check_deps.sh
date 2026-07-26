@@ -26,6 +26,21 @@ for tool in "${REQUIRED_TOOLS[@]}"; do
     fi
 done
 
+# ReplayGain tagging needs exactly one of REPLAYGAIN_TOOLS (rsgain or loudgain)
+replaygain_tool_found=""
+for tool in "${REPLAYGAIN_TOOLS[@]}"; do
+    if command -v "$tool" >/dev/null 2>&1; then
+        replaygain_tool_found="$tool"
+        break
+    fi
+done
+if [[ -n "$replaygain_tool_found" ]]; then
+    log_success "$replaygain_tool_found: found (ReplayGain tool)"
+else
+    log_error "No ReplayGain tool found (need one of: ${REPLAYGAIN_TOOLS[*]})"
+    all_found=0
+fi
+
 log_header "Checking for optional dependencies..."
 
 for tool in "${OPTIONAL_TOOLS[@]}"; do

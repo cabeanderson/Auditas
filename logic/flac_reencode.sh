@@ -1,11 +1,19 @@
 #!/bin/bash
-# Scan all FLACs in current folder, summarize, and optionally re-encode.
+# Scan all FLACs in a folder (default: current), summarize, and optionally re-encode.
 # Parallelized version using parallel_lib.sh
 
 set -e
 set -o pipefail
 
-# Default jobs
+# Source libraries first so logging/config are available for arg parsing and defaults
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/logging.sh"
+source "$SCRIPT_DIR/../lib/config.sh"
+source "$SCRIPT_DIR/../lib/parallel.sh"
+source "$SCRIPT_DIR/../lib/utils.sh"
+
+# Defaults
+ROOT="."
 JOBS="${DEFAULT_JOBS:-$(nproc 2>/dev/null || echo 4)}"
 
 # Parse args
@@ -16,30 +24,33 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -h|--help)
-            log_usage "Usage: auditas reencode [-j jobs]" "Scans and optionally re-encodes FLAC files in the current directory."
+            log_usage "Usage: auditas reencode [-j jobs] [directory]" "Scans and optionally re-encodes FLAC files in the given directory (default: current directory)."
             exit 0
             ;;
-        *)
-            # Must source logging lib first to use it for errors
-            SCRIPT_DIR_INIT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-            source "$SCRIPT_DIR_INIT/../lib/logging.sh"
+        -*)
             log_error "Unknown option: $1"
             exit 1
+            ;;
+        *)
+            ROOT="$1"
+            shift
             ;;
     esac
 done
 
-# Source libraries
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/parallel.sh"
-source "$SCRIPT_DIR/../lib/logging.sh"
-source "$SCRIPT_DIR/../lib/config.sh"
-source "$SCRIPT_DIR/../lib/utils.sh"
+# Guard against a bad/empty -j value (e.g. -j without a number) breaking xargs -P
+[[ "$JOBS" =~ ^[1-9][0-9]*$ ]] || JOBS="$(nproc 2>/dev/null || echo 4)"
+
+if [[ ! -d "$ROOT" ]]; then
+    log_error "Directory '$ROOT' not found."
+    exit 1
+fi
+cd "$ROOT"
 
 # Check for FLAC files
 count=$(find . -maxdepth 1 -name "*.flac" | wc -l)
 if [[ "$count" -eq 0 ]]; then
-    log_info "No FLAC files found in current directory."
+    log_info "No FLAC files found in '$ROOT'."
     exit 0
 fi
 
@@ -61,7 +72,7 @@ scan_worker() {
 }
 export -f scan_worker
 
-log_header "Scanning $count FLAC files in current folder (Jobs: $JOBS)..."
+log_header "Scanning $count FLAC files in '$ROOT' (Jobs: $JOBS)..."
 # Run parallel scan and capture output
 scan_results=$(find . -maxdepth 1 -name "*.flac" -print0 | xargs -0 -n 1 -P "$JOBS" bash -c 'scan_worker "$0"' | sort)
 
@@ -75,9 +86,9 @@ fail_count=0
 while IFS='|' read -r f vendor status; do
     printf "%-30s %-25s %-6s\n" "$f" "$vendor" "$status"
     if [[ "$status" == "OK" ]]; then
-        ((ok_count++))
+        ok_count=$((ok_count + 1))
     else
-        ((fail_count++))
+        fail_count=$((fail_count + 1))
     fi
 done <<< "$scan_results"
 
@@ -95,7 +106,10 @@ fi
 
 reencode_worker() {
     local f="$1"
-    local temp_file="tmp_$f"
+    # find (via -maxdepth 1) always yields paths like "./name.flac"; strip the
+    # leading "./" so the temp filename doesn't become the bogus "tmp_./name.flac"
+    # (a nonexistent "tmp_." subdirectory), which made every re-encode fail.
+    local temp_file="tmp_${f#./}"
     local backup_dir="backup"
     local status_msg
     

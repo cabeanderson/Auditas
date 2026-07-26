@@ -33,3 +33,5 @@ Thank you for your interest in contributing! We welcome bug reports, feature req
     ```
 -   **Safety**: Use `set -e` and `set -o pipefail` in scripts.
 -   **Output**: Use the logging library (`log_info`, `log_error`) instead of raw `echo`.
+-   **Counters under `set -e`**: never increment a counter with `((count++))` — when `count` is `0`, `((count++))` evaluates to `0` (falsy), so `set -e` treats it as a failed command and kills the script mid-loop. Use `count=$((count + 1))` instead, which is a plain assignment and always "succeeds". This exact bug silently broke `reencode`'s summary output.
+-   **Sourcing order**: source `lib/logging.sh` (and `lib/config.sh` if the script has a `-j`/config-driven default) *before* the argument-parsing loop, not after. If `-h`/`--help` or an error path inside that loop calls `log_usage`/`log_error` before the library is sourced, the script dies with `command not found` instead of printing help.

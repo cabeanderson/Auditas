@@ -8,6 +8,13 @@
 set -e
 set -o pipefail
 
+# --- Source Libraries ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/logging.sh"
+source "$SCRIPT_DIR/../lib/parallel.sh"
+source "$SCRIPT_DIR/../lib/config.sh"
+source "$SCRIPT_DIR/../lib/utils.sh"
+
 # --- Configuration ---
 ROOT="."
 JOBS="${DEFAULT_JOBS:-$(nproc 2>/dev/null || echo 4)}"
@@ -87,17 +94,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Guard against a bad/empty -j value (e.g. -j without a number) breaking xargs -P
+[[ "$JOBS" =~ ^[1-9][0-9]*$ ]] || JOBS="$(nproc 2>/dev/null || echo 4)"
+
 if [[ ! -d "$ROOT" ]]; then
-    echo "Error: Directory '$ROOT' not found."
+    log_error "Directory '$ROOT' not found."
     exit 1
 fi
-
-# --- Source Libraries ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/logging.sh"
-source "$SCRIPT_DIR/../lib/parallel.sh"
-source "$SCRIPT_DIR/../lib/config.sh"
-source "$SCRIPT_DIR/../lib/utils.sh"
 
 # --- Worker Function ---
 audit_file_worker() {
